@@ -26,23 +26,24 @@ func writeHostsFile(hosts []string, filename string) error {
 
 func writeGoArray(w io.Writer, name string, values []string) {
 	sort.Strings(values)
-	_, _ = fmt.Fprintf(w, "var %s = []string { ", name)
+	_, _ = fmt.Fprintf(w, "\tvar %s = []string {\n", name)
 	for _, name := range values {
-		_, _ = fmt.Fprintf(w, " %#v,\n", name)
+		_, _ = fmt.Fprintf(w, "\t\t%#v,\n", name)
 	}
-	_, _ = fmt.Fprintln(w, " }")
+	_, _ = fmt.Fprintln(w, "\t}")
 }
 
 func main() {
 	var rulesPath string
 	var hostsFile string
 	var subdomainsFile string
-	var packageName = "simple"
 	var codeFile string
+	var packageName string
 	flag.StringVar(&rulesPath, "https-everywhere-rules", "", "Path to the rules")
 	flag.StringVar(&hostsFile, "domains-out", "", "Path to the rules")
 	flag.StringVar(&subdomainsFile, "subdomains-out", "", "Path to the rules")
 	flag.StringVar(&codeFile, "code-out", "", "Path to the rules")
+	flag.StringVar(&packageName, "code-package", "httpsify", "Path to the rules")
 	flag.Parse()
 
 	log.Println("Loading https everywhere...")
@@ -88,16 +89,14 @@ import (
 	"github.com/coffeemakr/httpsify"
 )
 
-var SimpleRules = httpsify.NewRuleCollection()
-
 func init() {
 `, packageName)
 
 		writeGoArray(f, "includeSubdomainsNames", rules.SimpleSubdomainTargets())
 		writeGoArray(f, "names", rules.SimpleTargets())
 		_, _ = fmt.Fprintf(f, `
-	SimpleRules.AddSimpleHosts(includeSubdomainsNames, true)
-	SimpleRules.AddSimpleHosts(names, false)
+	preloadedRules.AddSimpleHosts(includeSubdomainsNames, true)
+	preloadedRules.AddSimpleHosts(names, false)
 }
 `)
 	}
