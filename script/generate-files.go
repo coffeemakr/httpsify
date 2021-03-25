@@ -86,8 +86,8 @@ func main() {
 package %s
 	
 func init() {
+	preloadedRules = NewRuleCollection()
 `, packageName)
-
 		writeGoArray(f, "includeSubdomainsNames", rules.SimpleSubdomainTargets())
 		writeGoArray(f, "names", rules.SimpleTargets())
 		_, _ = fmt.Fprintf(f, `
